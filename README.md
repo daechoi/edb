@@ -1,0 +1,3 @@
+# EDB
+
+Enterprise distributed database
