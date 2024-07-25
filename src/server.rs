@@ -5,21 +5,34 @@ pub mod grpc_edb {
 
 use grpc_edb::database_server::{Database, DatabaseServer};
 
-#[derive(Debug, Default)]
-pub struct DBServer {
+/// DBServer Represents the server
+#[derive(Debug)]
+pub struct EDBServer {
     pub id: String,
     pub addr: String,
     pub threads: usize,
 }
 
-impl DBServer {
+impl Default for EDBServer {
+    fn default() -> Self {
+        Self { id: "default".into(), addr: "127.0.0.1:5430".into(), threads: 4 }
+    }
+}
+
+impl EDBServer {
     pub async fn start(&self) -> Result<(), Box<dyn std::error::Error>> {
         let addr = self.addr.parse().unwrap();
         let db = DbInstance { id: self.id.clone() };
-        Server::builder().add_service(DatabaseServer::new(db)).serve(addr).await?;
+        Server::builder()
+            .concurrency_limit_per_connection(self.threads)
+            .add_service(DatabaseServer::new(db))
+            .serve(addr)
+            .await?;
         Ok(())
     }
 }
+
+/// Represents a connection
 #[derive(Debug, Default)]
 struct DbInstance {
     id: String,
