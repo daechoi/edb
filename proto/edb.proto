@@ -1,0 +1,18 @@
+syntax = "proto3"; // version of protocol buffer
+
+package edb;
+
+message StatusRequest {
+}
+
+message StatusResponse{
+  string id = 1;
+  string version = 2;
+  int64 time = 3;
+}
+
+service Database {
+  rpc Status(StatusRequest) returns (StatusResponse);
+}
+
+
