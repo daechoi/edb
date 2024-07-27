@@ -1,7 +1,9 @@
 use env_logger::Env;
 use std::str::FromStr;
+use std::path::PathBuf;
 use tonic::transport::Uri;
 use edb::{configuration, grpc_stub::{database_client::DatabaseClient, StatusRequest}};
+use clap::{arg,  value_parser, Command};
 
 
 #[tokio::main]
