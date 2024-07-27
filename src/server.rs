@@ -1,5 +1,5 @@
 use tonic::{transport::Server, Request, Response, Status};
-use crate::grpc_stub;
+use crate::{configuration, grpc_stub};
 
 pub const FILE_DESCRIPTOR_SET: &[u8] = tonic::include_file_descriptor_set!("edb_descriptor");
 
@@ -40,12 +40,15 @@ pub struct EDBServer {
 
 impl Default for EDBServer {
     fn default() -> Self {
-        Self { id: "default".into(), addr: "127.0.0.1:54301".into(), threads: 4 }
+        let config = configuration::get_configuration().expect("Failed to read configuration");
+        let config = config.server;
+        Self { id: config.id, addr: config.addr, threads: config.threads }
     }
 }
 
 impl EDBServer {
     pub async fn start(&self) -> Result<(), Box<dyn std::error::Error>> {
+
         let addr = self.addr.parse().unwrap();
         let db = DbInstance { id: self.id.clone() };
         let reflection_server = tonic_reflection::server::Builder::configure()
