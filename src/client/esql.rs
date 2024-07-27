@@ -1,8 +1,7 @@
-mod grpc_client {
-    tonic::include_proto!("edb");
-}
+#[path="../service/edb.rs"]
+mod grpc;
 
-use grpc_client::database_client::DatabaseClient;
+use grpc::database_client::DatabaseClient;
 
 
 #[tokio::main]
@@ -15,7 +14,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("Connected to server!");
     let mut client = DatabaseClient::new(channel);
     
-    let request = tonic::Request::new(grpc_client::StatusRequest {});
+    let request = tonic::Request::new(grpc::StatusRequest {});
 
     let response = client.status(request).await?.into_inner();
 
