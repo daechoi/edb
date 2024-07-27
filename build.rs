@@ -3,7 +3,7 @@ use std::path::PathBuf;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let original_out_dir = PathBuf::from(env::var("OUT_DIR").unwrap());
-    let out_dir = "./src/service";
+    let out_dir = "./src/grpc_stub/";
 //    let out_dir = PathBuf::from(env::var("OUT_DIR")?);
     let proto_file = &["proto/edb.proto"];
 

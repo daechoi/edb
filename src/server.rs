@@ -1,19 +1,35 @@
 use tonic::{transport::Server, Request, Response, Status};
-/*
-pub mod grpc_edb {
-    tonic::include_proto!("edb");
-    pub const FILE_DESCRIPTOR_SET: &[u8] = tonic::include_file_descriptor_set!("edb_descriptor");
-}
-*/
-
-#[path = "service/edb.rs"]
-pub mod grpc_edb;
+use crate::grpc_stub;
 
 pub const FILE_DESCRIPTOR_SET: &[u8] = tonic::include_file_descriptor_set!("edb_descriptor");
-use grpc_edb::database_server::{Database, DatabaseServer};
 
 //pub type RpcResult<T> = std::result::Result<tonic::Response<T>, tonic::Status>;
 
+/// Represents a connection
+#[derive(Debug, Default)]
+struct DbInstance {
+    id: String,
+}
+
+#[tonic::async_trait]
+impl grpc_stub::database_server::Database for DbInstance {
+    async fn status(
+        &self,
+        request: Request<grpc_stub::StatusRequest>,
+    ) -> Result<Response<grpc_stub::StatusResponse>, Status> {
+        log::info!("Got a request: {:?}", request);
+        let reply = grpc_stub::StatusResponse {
+            id: self.id.clone(),
+            version: env!("CARGO_PKG_VERSION").into(),
+            time: std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap()
+                .as_secs() as i64,
+        };
+
+        Ok(Response::new(reply))
+    }
+}
 /// DBServer Represents the server
 #[derive(Debug)]
 pub struct EDBServer {
@@ -38,36 +54,10 @@ impl EDBServer {
 
         Server::builder()
             .concurrency_limit_per_connection(self.threads)
-            .add_service(DatabaseServer::new(db))
+            .add_service(grpc_stub::database_server::DatabaseServer::new(db))
             .add_service(reflection_server)
             .serve(addr)
             .await?;
         Ok(())
-    }
-}
-
-/// Represents a connection
-#[derive(Debug, Default)]
-struct DbInstance {
-    id: String,
-}
-
-#[tonic::async_trait]
-impl Database for DbInstance {
-    async fn status(
-        &self,
-        request: Request<grpc_edb::StatusRequest>,
-    ) -> Result<Response<grpc_edb::StatusResponse>, Status> {
-        println!("Got a request: {:?}", request);
-        let reply = grpc_edb::StatusResponse {
-            id: self.id.clone(),
-            version: env!("CARGO_PKG_VERSION").into(),
-            time: std::time::SystemTime::now()
-                .duration_since(std::time::UNIX_EPOCH)
-                .unwrap()
-                .as_secs() as i64,
-        };
-
-        Ok(Response::new(reply))
     }
 }

@@ -2,8 +2,11 @@
 name = "edb"
 version = "0.1.0"
 edition = "2021"
+default-run = "edb"
 
 [dependencies]
+env_logger = "0.11.5"
+log = "0.4.22"
 nanoid = "0.4.0"
 prost = "0.13.1"
 tokio = { version = "1.39.1", features = ["macros", "rt-multi-thread"] }
