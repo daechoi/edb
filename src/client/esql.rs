@@ -1,9 +1,7 @@
 use env_logger::Env;
 use std::str::FromStr;
-use std::path::PathBuf;
 use tonic::transport::Uri;
 use edb::{configuration, grpc_stub::{database_client::DatabaseClient, StatusRequest}};
-use clap::{arg,  value_parser, Command};
 
 
 #[tokio::main]
@@ -13,7 +11,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let config = configuration::get_configuration().expect("Failed to read configuration");
     let config = config.server;
 
-    let addr = Uri::from_str(format!("http://{}",config.addr).as_str()).expect("Failed to parse the URL");
+    let addr = Uri::from_str(format!("http://127.0.0.1:8080",).as_str()).expect("Failed to parse the URL");
     let channel = tonic::transport::Channel::builder(addr)
         .connect()
         .await
@@ -22,7 +20,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     log::info!("Connected to server!");
     let client = DatabaseClient::new(channel);
     let mut handles = Vec::new();
-    for i in 0..1000 {
+    for i in 0..10 {
         let mut client = client.clone();
         let j = tokio::spawn(async move {
             let request = tonic::Request::new(StatusRequest {});

@@ -1,5 +1,5 @@
 server:
   id: 'server1'
-  addr: '127.0.0.1:55401'
+  addr: '0.0.0.0:55401'
   threads: 5
 log_level: 'info'
