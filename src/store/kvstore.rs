@@ -1,7 +1,7 @@
 use std::collections::BTreeMap;
 use serde::{Serialize, Deserialize};
 use rmp_serde::Serializer;
-use super::error::Error;
+use crate::error::Error;
 
 /// A KVStore is a persistent key-value store.
 /// use messagepack as serialization format.

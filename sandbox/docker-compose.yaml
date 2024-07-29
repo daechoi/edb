@@ -1,8 +1,5 @@
 services:
   edb:
-    build: .
-    environment:
-      - EDB_ID=edb-a
-      - EDB_LISTEN=0.0.0.0:9601
+    build: ..
     ports:
       - 55401:55401
