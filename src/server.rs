@@ -1,5 +1,6 @@
 use tonic::{transport::Server, Request, Response, Status};
 use crate::{configuration, grpc_stub};
+use crate::raft::RaftInstance;
 use std::collections::HashMap;
 use std::net::SocketAddr;
 use configuration::Settings;
@@ -42,6 +43,7 @@ pub struct EDBServer {
     config: Settings,
 }
 
+
 impl EDBServer {
     pub fn new(config: Settings) -> Self {
         let peers = config.parse_peers().expect("Failed to parse peers");
@@ -56,6 +58,7 @@ impl EDBServer {
         let addr = addr.parse()?;
 
         let db = DbInstance { id: self.id.clone() };
+        let rs = RaftInstance{};
         let reflection_server = tonic_reflection::server::Builder::configure()
         .register_encoded_file_descriptor_set(FILE_DESCRIPTOR_SET)
         .build()?;
@@ -63,6 +66,7 @@ impl EDBServer {
         Server::builder()
             .concurrency_limit_per_connection(self.config.server.threads)
             .add_service(grpc_stub::database_server::DatabaseServer::new(db))
+            .add_service(grpc_stub::raft::raft_server::RaftServer::new(rs))
             .add_service(reflection_server)
             .serve(addr)
             .await?;
