@@ -12,8 +12,9 @@ pub struct Settings {
 #[derive(serde::Deserialize)]
 pub struct ServerSettings {
     pub id: String,
-    pub addr: String,
+    pub port: u16,
     pub threads: usize,
+    pub addr: String,
 }
 
 pub fn get_configuration() -> Result<Settings, config::ConfigError> {

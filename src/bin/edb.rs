@@ -8,7 +8,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     env_logger::Builder::from_env(Env::default().default_filter_or(config.log_level)).init();
 
     let server = server::EDBServer::default();
-    log::info!("Listening on {}", server.addr);
+    log::info!("Listening on {}", config.server.port);
     server.start().await?;
     Ok(())
 }

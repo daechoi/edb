@@ -30,33 +30,37 @@ impl grpc_stub::database_server::Database for DbInstance {
         Ok(Response::new(reply))
     }
 }
+
 /// DBServer Represents the server
 #[derive(Debug)]
 pub struct EDBServer {
     pub id: String,
-    pub addr: String,
-    pub threads: usize,
 }
 
 impl Default for EDBServer {
     fn default() -> Self {
         let config = configuration::get_configuration().expect("Failed to read configuration");
         let config = config.server;
-        Self { id: config.id, addr: config.addr, threads: config.threads }
+        Self { id: config.id, }
     }
 }
 
 impl EDBServer {
     pub async fn start(&self) -> Result<(), Box<dyn std::error::Error>> {
 
-        let addr = self.addr.parse().unwrap();
+        let config = configuration::get_configuration().expect("Failed to read configuration");
+
+        let addr = "0.0.0.0";
+        let addr = format!("{addr}:{}", config.server.port);
+        let addr = addr.parse()?;
+
         let db = DbInstance { id: self.id.clone() };
         let reflection_server = tonic_reflection::server::Builder::configure()
         .register_encoded_file_descriptor_set(FILE_DESCRIPTOR_SET)
         .build()?;
 
         Server::builder()
-            .concurrency_limit_per_connection(self.threads)
+            .concurrency_limit_per_connection(config.server.threads)
             .add_service(grpc_stub::database_server::DatabaseServer::new(db))
             .add_service(reflection_server)
             .serve(addr)

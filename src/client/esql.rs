@@ -11,7 +11,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let config = configuration::get_configuration().expect("Failed to read configuration");
     let config = config.server;
 
-    let addr = Uri::from_str(format!("http://127.0.0.1:8080",).as_str()).expect("Failed to parse the URL");
+    let addr = Uri::from_str(format!("http://{}:{}",config.addr, config.port).as_str()).expect("Failed to parse the URL");
     let channel = tonic::transport::Channel::builder(addr)
         .connect()
         .await
