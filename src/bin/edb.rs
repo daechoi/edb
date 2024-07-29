@@ -5,10 +5,12 @@ use env_logger::Env;
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let config = get_configuration().expect("Failed to read configuration");
-    env_logger::Builder::from_env(Env::default().default_filter_or(config.log_level)).init();
+    let log_level = config.log_level.as_str();
+    env_logger::Builder::from_env(Env::default().default_filter_or(log_level)).init();
 
-    let server = server::EDBServer::default();
     log::info!("Listening on {}", config.server.port);
+
+    let server = server::EDBServer::new(config);
     server.start().await?;
     Ok(())
 }

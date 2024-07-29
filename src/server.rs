@@ -1,5 +1,8 @@
 use tonic::{transport::Server, Request, Response, Status};
 use crate::{configuration, grpc_stub};
+use std::collections::HashMap;
+use std::net::SocketAddr;
+use configuration::Settings;
 
 pub const FILE_DESCRIPTOR_SET: &[u8] = tonic::include_file_descriptor_set!("edb_descriptor");
 
@@ -35,23 +38,21 @@ impl grpc_stub::database_server::Database for DbInstance {
 #[derive(Debug)]
 pub struct EDBServer {
     pub id: String,
-}
-
-impl Default for EDBServer {
-    fn default() -> Self {
-        let config = configuration::get_configuration().expect("Failed to read configuration");
-        let config = config.server;
-        Self { id: config.id, }
-    }
+    pub peers: HashMap<String, SocketAddr>,
+    config: Settings,
 }
 
 impl EDBServer {
+    pub fn new(config: Settings) -> Self {
+        let peers = config.parse_peers().expect("Failed to parse peers");
+        let id = config.server.id.clone();
+        Self{ id, peers, config }
+    }
+
     pub async fn start(&self) -> Result<(), Box<dyn std::error::Error>> {
 
-        let config = configuration::get_configuration().expect("Failed to read configuration");
-
         let addr = "0.0.0.0";
-        let addr = format!("{addr}:{}", config.server.port);
+        let addr = format!("{addr}:{}", self.config.server.port);
         let addr = addr.parse()?;
 
         let db = DbInstance { id: self.id.clone() };
@@ -60,7 +61,7 @@ impl EDBServer {
         .build()?;
 
         Server::builder()
-            .concurrency_limit_per_connection(config.server.threads)
+            .concurrency_limit_per_connection(self.config.server.threads)
             .add_service(grpc_stub::database_server::DatabaseServer::new(db))
             .add_service(reflection_server)
             .serve(addr)

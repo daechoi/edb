@@ -1,20 +1,33 @@
+use std::collections::HashMap;
 use config::Config;
 use std::path::PathBuf;
 use clap::{arg, value_parser, Command};
 
 
-#[derive(serde::Deserialize)]
+#[derive(Debug, serde::Deserialize)]
 pub struct Settings {
     pub server: ServerSettings,
     pub log_level: String,
 }
 
-#[derive(serde::Deserialize)]
+#[derive(Debug, serde::Deserialize)]
 pub struct ServerSettings {
     pub id: String,
     pub port: u16,
     pub threads: usize,
     pub addr: String,
+    pub peers: HashMap<String, String>,
+}
+
+impl Settings {
+    pub fn parse_peers(&self) -> Result<HashMap<String, std::net::SocketAddr>, std::io::Error> {
+        let mut peers = HashMap::new();
+        for (id, addr) in self.server.peers.iter() {
+            let addr = addr.parse().expect("Failed to parse peer address");
+            peers.insert(id.clone(), addr);
+        }
+        Ok(peers)
+    }
 }
 
 pub fn get_configuration() -> Result<Settings, config::ConfigError> {

@@ -2,5 +2,6 @@ server:
   id: 'server1'
   addr: '127.0.0.1'
   threads: 5
-  port: 55401
+  port: 55402
+  peers: {'peer1': '127.0.0.1:54302', 'peer2': '127.0.0.2:54303'}
 log_level: 'info'
