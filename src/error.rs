@@ -1,5 +1,6 @@
-#[derive(Debug)]
+#[derive(Debug, thiserror::Error)]
 pub enum Error {
+    #[error("IO Error:{0}")]
     IO(String),
 }
 

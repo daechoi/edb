@@ -40,6 +40,7 @@ impl grpc_stub::database_server::Database for DbInstance {
 pub struct EDBServer {
     pub id: String,
     pub peers: HashMap<String, SocketAddr>,
+    pub data_path: String,
     config: Settings,
 }
 
@@ -48,11 +49,11 @@ impl EDBServer {
     pub fn new(config: Settings) -> Self {
         let peers = config.parse_peers().expect("Failed to parse peers");
         let id = config.server.id.clone();
-        Self{ id, peers, config }
+        let data_path = config.server.data_path.clone();
+        Self{ id, peers, config, data_path }
     }
 
     pub async fn start(&self) -> Result<(), Box<dyn std::error::Error>> {
-
         let addr = "0.0.0.0";
         let addr = format!("{addr}:{}", self.config.server.port);
         let addr = addr.parse()?;

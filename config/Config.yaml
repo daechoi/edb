@@ -4,4 +4,5 @@ server:
   threads: 5
   port: 55402
   peers: {'peer1': '127.0.0.1:54302', 'peer2': '127.0.0.2:54303'}
+  data_path: '/var/lib/edb'
 log_level: 'info'

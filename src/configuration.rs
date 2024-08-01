@@ -17,6 +17,7 @@ pub struct ServerSettings {
     pub threads: usize,
     pub addr: String,
     pub peers: HashMap<String, String>,
+    pub data_path: String,
 }
 
 impl Settings {
